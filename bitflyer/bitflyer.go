@@ -6,6 +6,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"github.com/gorilla/websocket"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -101,4 +103,115 @@ func (api *APIClient) GetBalance() ([]Balance, error) {
 		return nil, err
 	}
 	return balance, nil
+}
+
+type Ticker struct {
+	ProductCode     string  `json:"product_code"`
+	State           string  `json:"state"`
+	Timestamp       string  `json:"timestamp"`
+	TickID          int     `json:"tick_id"`
+	BestBid         float64 `json:"best_bid"`
+	BestAsk         float64 `json:"best_ask"`
+	BestBidSize     float64 `json:"best_bid_size"`
+	BestAskSize     float64 `json:"best_ask_size"`
+	TotalBidDepth   float64 `json:"total_bid_depth"`
+	TotalAskDepth   float64 `json:"total_ask_depth"`
+	MarketBidSize   float64 `json:"market_bid_size"`
+	MarketAskSize   float64 `json:"market_ask_size"`
+	Ltp             float64 `json:"ltp"`
+	Volume          float64 `json:"volume"`
+	VolumeByProduct float64 `json:"volume_by_product"`
+}
+
+func (t *Ticker) GetMidPrice() float64 {
+	return (t.BestBid + t.BestAsk) / 2
+}
+
+func (t *Ticker) DateTime() time.Time {
+	dateTime, err := time.Parse(time.RFC3339, t.Timestamp)
+	if err != nil {
+		log.Printf("action=DateTime, err=%s", err.Error())
+	}
+	return dateTime
+}
+
+func (t *Ticker) TruncateDateTime(duration time.Duration) time.Time {
+	return t.DateTime().Truncate(duration)
+}
+
+func (api *APIClient) GetTicker(productCode string) (*Ticker, error) {
+	url := "ticker"
+	resp, err := api.doRequest("GET", url, map[string]string{"product_code": productCode}, nil)
+	log.Printf("%s", string(resp))
+	if err != nil {
+		log.Printf("url=%s resp=%s", url, string(resp))
+		return nil, err
+	}
+	var ticker Ticker
+	err = json.Unmarshal(resp, &ticker)
+	if err != nil {
+		log.Printf("action=GetTicker err=%s", err.Error())
+		return nil, err
+	}
+	return &ticker, nil
+}
+
+type JsonRPC2 struct {
+	Version string      `json:"jsonrpc"`
+	Method  string      `json:"method"`
+	Params  interface{} `json:"params"`
+	Result  interface{} `json:"result,omitempty"`
+	Id      *int        `json:"id,omitempty"`
+}
+
+type SubscribeParams struct {
+	Channel string `json:"channel"`
+}
+
+func (api *APIClient) GetRealTimeTicker(symbol string, ch chan<- Ticker) {
+	u := url.URL{Scheme: "wss", Host: "ws.lightstream.bitflyer.com", Path: "/json-rpc"}
+	log.Printf("connecting to %s", u.String())
+
+	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	if err != nil {
+		log.Fatal("dial:", err)
+	}
+	defer c.Close()
+
+	channel := fmt.Sprintf("lightning_ticker_%s", symbol)
+	err = c.WriteJSON(&JsonRPC2{Version: "2.0", Method: "subscribe", Params: &SubscribeParams{channel}})
+	if err != nil {
+		log.Fatal("subscribe:", err)
+		return
+	}
+
+OUTER:
+	for {
+		message := new(JsonRPC2)
+		err = c.ReadJSON(message)
+		if err != nil {
+			log.Println("read:", err)
+			return
+		}
+
+		if message.Method == "channelMessage" {
+			switch v := message.Params.(type) {
+			case map[string]interface{}:
+				for key, binary := range v {
+					if key == "message" {
+						marshaTic, err := json.Marshal(binary)
+						if err != nil {
+							continue OUTER
+						}
+						var ticker Ticker
+						err = json.Unmarshal(marshaTic, &ticker)
+						if err != nil {
+							continue OUTER
+						}
+						ch <- ticker
+					}
+				}
+			}
+		}
+	}
 }

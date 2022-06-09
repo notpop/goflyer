@@ -1,10 +1,11 @@
 package main
 
 import (
-	"log"
 	"goflyer/bitflyer"
 	"goflyer/config"
 	"goflyer/utils"
+	"log"
+	"time"
 
 	"fmt"
 )
@@ -14,7 +15,19 @@ func init() {
 }
 
 func main() {
-	log.Println("test")
+	log.Println("start")
 	apiClient := bitflyer.New(config.Config.ApiKey, config.Config.ApiSecret)
-	fmt.Println(apiClient.GetBalance())
+
+	tickerChannel := make(chan bitflyer.Ticker)
+	go apiClient.GetRealTimeTicker(config.Config.ProductCode, tickerChannel)
+	for ticker := range tickerChannel {
+		fmt.Println(ticker)
+		fmt.Println(ticker.GetMidPrice())
+		// fmt.Println(ticker.DateTime())
+		fmt.Println(ticker.TruncateDateTime(time.Second))
+		// fmt.Println(ticker.TruncateDateTime(time.Minute))
+		// fmt.Println(ticker.TruncateDateTime(time.Hour))
+	}
+
+	log.Println("end")
 }
