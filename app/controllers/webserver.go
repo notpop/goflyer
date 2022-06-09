@@ -14,15 +14,12 @@ import (
 
 const VIEW_PATH = "app/views/"
 const GOOGLE_PATH = "google.html"
+const CHART_PATH = "chart.html"
 
-var templates = template.Must(template.ParseFiles(VIEW_PATH + GOOGLE_PATH))
+var templates = template.Must(template.ParseFiles(VIEW_PATH+CHART_PATH, VIEW_PATH+GOOGLE_PATH))
 
 func viewChartHandler(w http.ResponseWriter, r *http.Request) {
-	limit := 100
-	duration := "1s"
-	durationTime := config.Config.Durations[duration]
-	df, _ := models.GetAllCandle(config.Config.ProductCode, durationTime, limit)
-	err := templates.ExecuteTemplate(w, GOOGLE_PATH, df.Candles)
+	err := templates.ExecuteTemplate(w, CHART_PATH, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
