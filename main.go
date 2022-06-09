@@ -52,7 +52,6 @@ func main() {
 	// r, _ := apiClient.ListOrder(params)
 	// fmt.Println(r)
 
-
 	fmt.Println(models.DbConnection)
 	controllers.StreamInjestionData()
 
