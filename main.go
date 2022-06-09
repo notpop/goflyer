@@ -2,14 +2,13 @@ package main
 
 import (
 	"goflyer/app/controllers"
-	"goflyer/app/models"
+	// "goflyer/app/models"
 	// "goflyer/bitflyer"
 	"goflyer/config"
 	"goflyer/utils"
 	"log"
 	// "time"
-
-	"fmt"
+	// "fmt"
 )
 
 func init() {
@@ -52,8 +51,9 @@ func main() {
 	// r, _ := apiClient.ListOrder(params)
 	// fmt.Println(r)
 
-	fmt.Println(models.DbConnection)
+	// fmt.Println(models.DbConnection)
 	controllers.StreamInjestionData()
+	controllers.StartWebServer()
 
 	log.Println("end")
 }
