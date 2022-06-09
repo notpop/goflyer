@@ -27,7 +27,29 @@ func main() {
 		fmt.Println(ticker.TruncateDateTime(time.Second))
 		// fmt.Println(ticker.TruncateDateTime(time.Minute))
 		// fmt.Println(ticker.TruncateDateTime(time.Hour))
+
+		// 試しなので一件だけ取得したら終了
+		break
 	}
+
+	// 実際に売りを入れてそのオーダーを監視する
+	// order := &bitflyer.Order {
+	// 	ProductCode: config.Config.ProductCode,
+	// 	ChildOrderType: "MARKET",
+	// 	Side: "SELL",
+	// 	Size: 0.001,
+	// 	MinuteToExpires: 1,
+	// 	TimeInForce: "GTC",
+	// }
+	// res, _ := apiClient.SendOrder(order)
+	// orderId := res.ChildOrderAcceptanceID
+	// params := map[string]string{
+	// 	"product_code": config.Config.ProductCode,
+	// 	"child_order_acceptance_id": orderId,
+	// }
+	// r, _ := apiClient.ListOrder(params)
+	// fmt.Println(r)
+
 
 	log.Println("end")
 }
