@@ -1,0 +1,6 @@
+[bitflyer]
+api_key = XXXXXXXXXXXXXXXXXXXXXX
+api_secret = XXXXXXXXXXXXXXXXXXXXXX
+
+[goflyer]
+log_file = goflyer.log
