@@ -4,3 +4,4 @@ api_secret = XXXXXXXXXXXXXXXXXXXXXX
 
 [goflyer]
 log_file = goflyer.log
+product_code = BTC_JPY
