@@ -97,7 +97,7 @@ func (df *DataFrameCandle) Highs() []float64 {
 	return s
 }
 
-func (df *DataFrameCandle) Lows() []float64 {
+func (df *DataFrameCandle) Low() []float64 {
 	s := make([]float64, len(df.Candles))
 	for i, candle := range df.Candles {
 		s[i] = candle.Low
@@ -105,7 +105,7 @@ func (df *DataFrameCandle) Lows() []float64 {
 	return s
 }
 
-func (df *DataFrameCandle) Volumes() []float64 {
+func (df *DataFrameCandle) Volume() []float64 {
 	s := make([]float64, len(df.Candles))
 	for i, candle := range df.Candles {
 		s[i] = candle.Volume
@@ -211,4 +211,29 @@ func (df *DataFrameCandle) AddEvents(timeTime time.Time) bool {
 		return true
 	}
 	return false
+}
+
+func (df *DataFrameCandle) BackTestEma(period1, period2 int) *SignalEvents {
+	lenCandles := len(df.Candles)
+	if lenCandles <= period1 || lenCandles <= period2 {
+		return nil
+	}
+	signalEvents := NewSignalEvents()
+	emaValue1 := talib.Ema(df.Closes(), period1)
+	emaValue2 := talib.Ema(df.Closes(), period2)
+
+	for i := 1; i < lenCandles; i++ {
+		if i < period1 || i < period2 {
+			continue
+		}
+
+		if emaValue1[i-1] < emaValue2[i-1] && emaValue1[i] >= emaValue2[i] {
+			signalEvents.Buy(df.ProductCode, df.Candles[i].Time, df.Candles[i].Close, 1.0, false)
+		}
+
+		if emaValue1[i-1] > emaValue2[i-1] && emaValue1[i] <= emaValue2[i] {
+			signalEvents.Sell(df.ProductCode, df.Candles[i].Time, df.Candles[i].Close, 1.0, false)
+		}
+	}
+	return signalEvents
 }

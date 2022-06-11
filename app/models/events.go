@@ -26,7 +26,7 @@ func (s *SignalEvent) Save() bool {
 	cmd := fmt.Sprintf("INSERT INTO %s (time, product_code, side, price, size) VALUES (?, ?, ?, ?, ?)", TABLE_NAME_SIGNAL_EVENTS)
 	_, err := DbConnection.Exec(cmd, s.Time.Format(time.RFC3339), s.ProductCode, s.Side, s.Price, s.Size)
 	if err != nil {
-		if strings.Contains(err.Error(), "UNIQUE constraint failled") {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			log.Println(err)
 			return true
 		}
@@ -105,16 +105,17 @@ func (s *SignalEvents) Buy(ProductCode string, time time.Time, price, size float
 		return false
 	}
 
-	SignalEvent := SignalEvent{
+	signalEvent := SignalEvent{
 		ProductCode: ProductCode,
 		Time:        time,
+		Side:        SIGNAL_EVENT_SIDE_BUY,
 		Price:       price,
 		Size:        size,
 	}
 	if save {
-		SignalEvent.Save()
+		signalEvent.Save()
 	}
-	s.Signals = append(s.Signals, SignalEvent)
+	s.Signals = append(s.Signals, signalEvent)
 	return true
 }
 
@@ -136,16 +137,17 @@ func (s *SignalEvents) Sell(ProductCode string, time time.Time, price, size floa
 		return false
 	}
 
-	SignalEvent := SignalEvent{
+	signalEvent := SignalEvent{
 		ProductCode: ProductCode,
 		Time:        time,
+		Side:        SIGNAL_EVENT_SIDE_SELL,
 		Price:       price,
 		Size:        size,
 	}
 	if save {
-		SignalEvent.Save()
+		signalEvent.Save()
 	}
-	s.Signals = append(s.Signals, SignalEvent)
+	s.Signals = append(s.Signals, signalEvent)
 	return true
 }
 

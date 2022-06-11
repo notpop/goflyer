@@ -37,8 +37,7 @@
                 candlestick:{
                     product_code: 'BTC_JPY',
                     duration: '1m',
-                    // limit: 365,
-                    limit: 1000,
+                    limit: 365,
                     numViews: 5,
                 },
                 dataTable:{
@@ -137,10 +136,10 @@
             }
 
             function drawChart(dataTable) {
-                let chartDiv = document.getElementById('chart_div');
-                let charts = [];
-                let dashboard = new google.visualization.Dashboard(chartDiv);
-                let mainChart = new google.visualization.ChartWrapper({
+                var chartDiv = document.getElementById('chart_div');
+                var charts = [];
+                var dashboard = new google.visualization.Dashboard(chartDiv);
+                var mainChart = new google.visualization.ChartWrapper({
                     chartType: 'ComboChart',
                     containerId: 'chart_div',
                     options: {
@@ -169,8 +168,8 @@
                 });
                 charts.push(mainChart);
 
-                let options = mainChart.getOptions();
-                let view = mainChart.getView();
+                var options = mainChart.getOptions();
+                var view = mainChart.getView();
 
                 if (config.sma.enable == true) {
                     for (i = 0; i < config.sma.indexes.length; i ++) {
@@ -333,7 +332,7 @@
                     charts.push(hvChart)
                 }
 
-                let controlWrapper = new google.visualization.ControlWrapper({
+                var controlWrapper = new google.visualization.ControlWrapper({
                     'controlType': 'ChartRangeFilter',
                     'containerId': 'filter_div',
                     'options': {
@@ -356,17 +355,17 @@
                 if (config.api.enable == false){
                     return
                 }
-                let params = {
+                var params = {
                     "product_code": config.candlestick.product_code,
                     "limit": config.candlestick.limit,
                     "duration": config.candlestick.duration,
                 }
 
-                if (config.sma.enable === true) {
-                    params['sma'] = true;
-                    params['smaPeriod1'] = config.sma.periods[0];
-                    params['smaPeriod2'] = config.sma.periods[1];
-                    params['smaPeriod3'] = config.sma.periods[2];
+                if (config.sma.enable == true) {
+                    params["sma"] = true;
+                    params["smaPeriod1"] = config.sma.periods[0];
+                    params["smaPeriod2"] = config.sma.periods[1];
+                    params["smaPeriod3"] = config.sma.periods[2];
                 }
 
                 if (config.ema.enable == true) {
@@ -411,7 +410,7 @@
 
                 $.get("/api/candle/", params).done(function (data) {
                     initConfigValues();
-                    let dataTable = new google.visualization.DataTable();
+                    var dataTable = new google.visualization.DataTable();
                     dataTable.addColumn('date', 'Date');
                     dataTable.addColumn('number', 'Low');
                     dataTable.addColumn('number', 'Open');
@@ -419,22 +418,22 @@
                     dataTable.addColumn('number', 'High');
                     dataTable.addColumn('number', 'Volume');
 
-                    if (data['smas'] != undefined) {
-                        for (i = 0; i < data['smas'].length; i ++) {
-                            let smaData = data['smas'][i];
+                    if (data["smas"] != undefined) {
+                        for (i = 0; i < data["smas"].length; i ++) {
+                            var smaData = data["smas"][i];
                             if (smaData.length == 0) {
                                 continue;
                             }
                             config.dataTable.index += 1;
                             config.sma.indexes[i] = config.dataTable.index;
-                            dataTable.addColumn('number', 'SMA' + smaData['period'].toString());
-                            config.sma.values[i] = smaData['values'];
+                            dataTable.addColumn('number', 'SMA' + smaData["period"].toString());
+                            config.sma.values[i] = smaData["values"];
                         }
                     }
 
                     if (data["emas"] != undefined) {
-                        for (i = 0; i < data['emas'].length; i++){
-                            let emaData = data['emas'][i];
+                        for (i = 0; i < data["emas"].length; i++){
+                            var emaData = data["emas"][i];
                             if (emaData.length == 0){ continue; }
                             config.dataTable.index += 1;
                             config.ema.indexes[i] = config.dataTable.index;
@@ -570,15 +569,15 @@
                         }
                     }
 
-                    let googleChartData = [];
-                    let candles = data["candles"];
+                    var googleChartData = [];
+                    var candles = data["candles"];
 
-                    for(let i=0; i < candles.length; i++){
-                        let candle = candles[i];
-                        let date = new Date(candle.time);
-                        let datas = [date, candle.low, candle.open, candle.close, candle.high, candle.volume];
+                    for(var i=0; i < candles.length; i++){
+                        var candle = candles[i];
+                        var date = new Date(candle.time);
+                        var datas = [date, candle.low, candle.open, candle.close, candle.high, candle.volume];
 
-                        if (data['smas'] != undefined) {
+                        if (data["smas"] != undefined) {
                             for (j = 0; j < config.sma.values.length; j ++) {
                                 if (config.sma.values[j][i] == 0) {
                                     datas.push(null);
@@ -871,7 +870,7 @@
         </div>
 
         <div>
-            Sma <input id="inputSma" type="checkbox">
+            SMA <input id="inputSma" type="checkbox">
             Period<input id="inputSmaPeriod1" type="text" value="7" style="width: 15px;">
             <input id="inputSmaPeriod2" type="text" value="14" style="width: 15px;">
             <input id="inputSmaPeriod3" type="text" value="50" style="width: 15px;">

@@ -84,7 +84,7 @@ func CreateCandleWithDuration(ticker bitflyer.Ticker, productCode string, durati
 	return false
 }
 
-func GetAllCandle(productCode string, duration time.Duration, limit int) (df *DataFrameCandle, err error) {
+func GetAllCandle(productCode string, duration time.Duration, limit int) (dfCandle *DataFrameCandle, err error) {
 	tableName := GetCandleTableName(productCode, duration)
 	cmd := fmt.Sprintf(`SELECT * FROM (
 		SELECT time, open, close, high, low, volume FROM %s ORDER BY time DESC LIMIT ?
@@ -95,7 +95,7 @@ func GetAllCandle(productCode string, duration time.Duration, limit int) (df *Da
 	}
 	defer rows.Close()
 
-	dfCandle := &DataFrameCandle{}
+	dfCandle = &DataFrameCandle{}
 	dfCandle.ProductCode = productCode
 	dfCandle.Duration = duration
 	for rows.Next() {
