@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+const (
+	OPTIMIZE_EMA_CYCLE_OUTER_COUNT = 11
+	OPTIMIZE_EMA_CYCLE_INNER_COUNT = 20
+)
+
 type DataFrameCandle struct {
 	ProductCode   string         `json:"product_code"`
 	Duration      time.Duration  `json:"duration"`
@@ -236,4 +241,25 @@ func (df *DataFrameCandle) BackTestEma(period1, period2 int) *SignalEvents {
 		}
 	}
 	return signalEvents
+}
+
+func (df *DataFrameCandle) OptimizeEma() (performance float64, bestPeriod1 int, bestPeriod2 int) {
+	bestPeriod1 = 7
+	bestPeriod2 = 14
+
+	for period1 := 5; period1 < OPTIMIZE_EMA_CYCLE_OUTER_COUNT; period1++ {
+		for period2 := 12; period2 < OPTIMIZE_EMA_CYCLE_INNER_COUNT; period2++ {
+			signalEvents := df.BackTestEma(period1, period2)
+			if signalEvents == nil {
+				continue
+			}
+			profit := signalEvents.Profit()
+			if performance < profit {
+				performance = profit
+				bestPeriod1 = period1
+				bestPeriod2 = period2
+			}
+		}
+	}
+	return performance, bestPeriod1, bestPeriod2
 }
