@@ -23,4 +23,7 @@ lightning_ticker_{product_code}
 ```
 /v1/me/getchildorders
 ```
-[getchildorders詳細へ](https://lightning.bitflyer.com/docs#%E6%B3%A8%E6%96%87%E3%81%AE%E4%B8%80%E8%A6%A7%E3%82%92%E5%8F%96%E5%BE%97)<br><br>
+[getchildorders詳細へ](https://lightning.bitflyer.com/docs#%E6%B3%A8%E6%96%87%E3%81%AE%E4%B8%80%E8%A6%A7%E3%82%92%E5%8F%96%E5%BE%97)<br><br><br><br><br><br>
+
+
+### このコードの使用またはその他の取引に起因または関連して発生した、いかなるクレーム、損害またはその他の責任についても、notpopは一切責任を負いません。
