@@ -8,6 +8,9 @@ import (
 )
 
 func StreamInjestionData() {
+	c := config.Config
+	ai := NewAI(c.ProductCode, c.TradeDuration, c.DataLimit, c.UsePercent, c.StopLimitPercent, c.BackTest)
+
 	var tickerChannel = make(chan bitflyer.Ticker)
 	apiClient := bitflyer.New(config.Config.ApiKey, config.Config.ApiSecret)
 	go apiClient.GetRealTimeTicker(config.Config.ProductCode, tickerChannel)
@@ -17,7 +20,7 @@ func StreamInjestionData() {
 			for _, duration := range config.Config.Durations {
 				isCreated := models.CreateCandleWithDuration(ticker, ticker.ProductCode, duration)
 				if isCreated && duration == config.Config.TradeDuration {
-					log.Printf("%v", "TODO")
+					ai.Trade()
 				}
 			}
 		}
